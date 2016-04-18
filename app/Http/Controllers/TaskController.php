@@ -18,6 +18,8 @@ class TaskController extends Controller {
      */
     public function index() {
 
+        return Task::all();
+
         $task = Task::all();
         return Reponse::json([
            'data' => $task->toArray()
@@ -98,6 +100,10 @@ class TaskController extends Controller {
                 ]
             ], 404);
         }
+
+        return Response::json([
+           'data' => $task->toArray()
+        ],200);
 
         $this->saveTask($request, $task);
     }
