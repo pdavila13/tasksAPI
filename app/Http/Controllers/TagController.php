@@ -20,7 +20,11 @@ class TagController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        return Tag::all();
+
+        $tag = Tag::all();
+        return Reponse::json([
+            'data' => $tag->toArray()
+        ],200);
     }
 
     /**
@@ -51,7 +55,20 @@ class TagController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function show($id){
-        return $tag = Tag::findOrFail($id);
+        $tag = Tag::find($id);
+
+        if(!$tag) {
+            return Response::json([
+                'error' => [
+                    'message' => 'Tag does not exist',
+                    'code' => 195
+                ]
+            ],400);
+        }
+
+        return Response::json([
+            'data' => $tag->toArray()
+        ],400);
     }
 
     /**
@@ -72,7 +89,17 @@ class TagController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id) {
-        $tag = Tag::findOrFail($id);
+
+        $tag = Tag::find($id);
+
+        if(!$tag){
+            return Response::json([
+                'error' => [
+                    'message' => 'Tag does not exist',
+                    'code' => 195
+                ]
+            ], 404);
+        }
 
         $this->saveTag($request, $tag);
     }

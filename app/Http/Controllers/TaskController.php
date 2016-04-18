@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use Response;
 
 class TaskController extends Controller {
 
@@ -16,7 +17,11 @@ class TaskController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        return Task::all();
+
+        $task = Task::all();
+        return Reponse::json([
+           'data' => $task->toArray()
+        ], 200);
     }
 
     /**
@@ -47,7 +52,21 @@ class TaskController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function show($id){
-        return $task = Task::findOrFail($id);
+
+        $task = Task::find($id);
+
+        if(!$task) {
+            return Response::json([
+                'error' => [
+                    'message' => 'Task does not exist',
+                    'code' => 195
+                ]
+            ],400);
+        }
+
+        return Response::json([
+            'data' => $task->toArray()
+        ], 400);
     }
 
     /**
@@ -68,7 +87,17 @@ class TaskController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id) {
-        $task = Task::findOrFail($id);
+
+        $task = Task::find($id);
+
+        if(!$task){
+            return Response::json([
+                'error' => [
+                    'message' => 'Task does not exist',
+                    'code' => 195
+                ]
+            ], 404);
+        }
 
         $this->saveTask($request, $task);
     }
