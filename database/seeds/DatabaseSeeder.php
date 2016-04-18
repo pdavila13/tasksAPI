@@ -1,5 +1,7 @@
 <?php
 
+use App\Tag;
+use App\Task;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
