@@ -123,7 +123,8 @@ class TagController extends Controller {
 
     private function transform($tag) {
         return [
-            'name' => $tag['name']
+            'name' => $tag['name'],
+            'tran' => (boolean)$tag['tran']
         ];
     }
 
