@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Task;
+use App\Transformers\TaskTransformer;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -11,6 +12,16 @@ use Response;
 
 class TaskController extends Controller {
 
+    protected $taskTransformer;
+
+    /**
+     * TaskController constructor.
+     * @param $taskTransformer
+     */
+    public function __construct(TaskTransformer $taskTransformer) {
+        $this->taskTransformer = $taskTransformer;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -18,12 +29,10 @@ class TaskController extends Controller {
      */
     public function index() {
 
-        return Task::all();
-
-        $task = Task::all();
-        return Reponse::json([
-           'data' => $task->toArray()
-        ], 200);
+        $tasks = Task::all();
+        return Response::json([
+            'data' => $this->taskTransformer->transformCollection($tasks)
+        ],200);
     }
 
     /**
@@ -67,7 +76,7 @@ class TaskController extends Controller {
         }
 
         return Response::json([
-            'data' => $task->toArray()
+            'data' => $this->taskTransformer->transform($task)
         ], 400);
     }
 
@@ -100,10 +109,6 @@ class TaskController extends Controller {
                 ]
             ], 404);
         }
-
-        return Response::json([
-           'data' => $task->toArray()
-        ],200);
 
         $this->saveTask($request, $task);
     }

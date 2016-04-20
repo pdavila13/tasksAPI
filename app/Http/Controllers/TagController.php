@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Tag;
+use App\Transformers\TagTransformer;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -15,6 +16,16 @@ use Response;
  */
 class TagController extends Controller {
 
+    protected $tagTransformer;
+
+    /**
+     * TagController constructor.
+     * @param $tagTransformer
+     */
+    public function __construct(TagTransformer $tagTransformer) {
+        $this->tagTransformer = $tagTransformer;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -22,11 +33,9 @@ class TagController extends Controller {
      */
     public function index() {
 
-        return Tag::all();
-
-        $tag = Tag::all();
-        return Reponse::json([
-            'data' => $this->transformCollection($tag)
+        $tags = Tag::all();
+        return Response::json([
+            'data' => $this->tagTransformer->transformCollection($tags)
         ],200);
     }
 
@@ -70,7 +79,7 @@ class TagController extends Controller {
         }
 
         return Response::json([
-            'data' => $this->transform($tag->toArray())
+            'data' => $this->tagTransformer->transform($tag)
         ],400);
     }
 
@@ -115,17 +124,6 @@ class TagController extends Controller {
      */
     public function destroy($id) {
         Tag::destroy($id);
-    }
-
-    public function transformCollection($tag) {
-        return array_map([$this, 'transform'], $tag->toArray());
-    }
-
-    private function transform($tag) {
-        return [
-            'name' => $tag['name'],
-            'tran' => (boolean)$tag['tran']
-        ];
     }
 
     /**
