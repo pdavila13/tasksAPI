@@ -32,7 +32,7 @@ class DatabaseSeeder extends Seeder {
 
             $task->name = $faker->sentence;
             $task->done = $faker->boolean;
-            $task->priority = $faker->randomDigit;
+//            $task->priority = $faker->randomDigit;
             $task->save();
         }
     }
