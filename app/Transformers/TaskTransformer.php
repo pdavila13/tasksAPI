@@ -8,8 +8,8 @@ class TaskTransformer extends Transformer {
         return [
             'id' => $item['id'],
             'name' => $item['name'],
-            'priority' => $item['priority'],
             'done' => (boolean)$item['done'],
+//            'priority' => $item['priority'],
         ];
     }
 }

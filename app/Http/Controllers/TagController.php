@@ -34,9 +34,10 @@ class TagController extends Controller {
     public function index() {
 
         $tags = Tag::all();
-        return Response::json([
-            'data' => $this->tagTransformer->transformCollection($tags)
-        ],200);
+        return Response::json(
+            $this->tagTransformer->transformCollection($tags),
+            200
+        );
     }
 
     /**
@@ -69,18 +70,19 @@ class TagController extends Controller {
     public function show($id){
         $tag = Tag::find($id);
 
-        if(!$tag) {
+        if( !$tag ) {
             return Response::json([
                 'error' => [
                     'message' => 'Tag does not exist',
                     'code' => 195
                 ]
-            ],400);
+            ],404);
         }
 
-        return Response::json([
-            'data' => $this->tagTransformer->transform($tag)
-        ],400);
+        return Response::json(
+            $this->tagTransformer->transform($tag),
+            200
+        );
     }
 
     /**
@@ -104,7 +106,7 @@ class TagController extends Controller {
 
         $tag = Tag::find($id);
 
-        if(!$tag){
+        if( !$tag ){
             return Response::json([
                 'error' => [
                     'message' => 'Tag does not exist',
@@ -132,6 +134,7 @@ class TagController extends Controller {
      */
     protected function saveTag(Request $request, $tag) {
         $tag->name = $request->name;
+        $tag->tran = $request->tran;
         $tag->save();
     }
 }
