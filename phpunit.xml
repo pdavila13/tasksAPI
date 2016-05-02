@@ -28,6 +28,7 @@
         <env name="QUEUE_DRIVER" value="sync"/>
         <env name="DB_CONNECTION" value="sqlite"/>
         <env name="DB_DATABASE" value=":memory:"/>
-        <env name="APP_KEY" value="base64:lkbVmfP39ixWe+VkxRPE/3Fj6JVe9UhBykZvx+YmaHQ="/>
+        <env name="MAIL_DRIVER" value="log"/>
+        <env name="APP_KEY" value="base64:RyYa5f7MG5Tg/V07ceJ2AtsCHJCOqWSsbQj41WWFHPU="/>
     </php>
 </phpunit>
