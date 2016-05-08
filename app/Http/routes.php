@@ -17,3 +17,7 @@ Route::get('/', function () {
 
 Route::resource('task', 'TaskController');
 Route::resource('tag', 'TagController');
+
+Route::get('auth/login', function() {
+   return 'No tens acces a la API';
+});

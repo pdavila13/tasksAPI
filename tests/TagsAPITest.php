@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 
 class TagsAPITest extends TestCase {
 
@@ -12,6 +13,8 @@ class TagsAPITest extends TestCase {
      * @return void
      */
     public function testTagsUseJson(){
+        $this->withoutMiddleware();
+
         $this->get('/tag')->seeJson()->seeStatusCode(200);
     }
 
@@ -21,6 +24,8 @@ class TagsAPITest extends TestCase {
      * @return void
      */
     public function testTagsInDatabaseAreListedByAPI(){
+        $this->withoutMiddleware();
+
         $this->createFakeTags();
         $this->get('/tag')
             ->seeJsonStructure([
@@ -37,6 +42,8 @@ class TagsAPITest extends TestCase {
      * @return void
      */
     public function testTagsInDatabaseAreShownByAPI(){
+        $this->withoutMiddleware();
+
         $tag = $this->createFakeTag();
         $this->get('/tag/' . $tag->id)
             ->seeJsonContains(['name' => $tag->name, 'tran' => $tag->tran])
@@ -49,6 +56,8 @@ class TagsAPITest extends TestCase {
      * @return void
      */
     public function testTagsCanBePostedAndSavedIntoDatabase() {
+        $this->withoutMiddleware();
+
         $data = ['name' => 'Foobar', 'tran' => false];
         $this->post('/tag',$data)->seeInDatabase('tags',$data);
         $this->get('/tag')->seeJsonContains($data)->seeStatusCode(200);
@@ -60,6 +69,8 @@ class TagsAPITest extends TestCase {
      * @return void
      */
     public function testTagsCanBeUpdatedAndSeeChangesInDatabase() {
+        $this->withoutMiddleware();
+
         $tag = $this->createFakeTag();
         $data = [ 'name' => 'Learn Laravel now!', 'tran' => true];
         $this->put('/tag/' . $tag->id, $data)->seeInDatabase('tags',$data);
@@ -72,10 +83,23 @@ class TagsAPITest extends TestCase {
      * @return void
      */
     public function testTagsCanBeDeletedAndNotSeenOnDatabase(){
+        $this->withoutMiddleware();
+
         $tag = $this->createFakeTag();
         $data = [ 'name' => $tag->name, 'tran' => $tag->tran];
         $this->delete('/tag/' . $tag->id)->notSeeInDatabase('tags',$data);
         $this->get('/tag')->dontSeeJson($data)->seeStatusCode(200);
+    }
+
+    /**
+     * Test tags when not auth redirect to auth/login and see message
+     *
+     * @return void
+     */
+    public function testTagsReturnLoginPageWhenNotAuth(){
+        $this->visit('/tag')
+            ->seePageIs('/auth/login')
+            ->see('No tens acces a la API');
     }
 
     /**

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 
 class TasksAPITest extends TestCase {
 
@@ -12,6 +13,8 @@ class TasksAPITest extends TestCase {
      * @return void
      */
     public function testTasksUseJson(){
+        $this->withoutMiddleware();
+
         $this->get('/task')->seeJson()->seeStatusCode(200);
     }
 
@@ -21,6 +24,8 @@ class TasksAPITest extends TestCase {
      * @return void
      */
     public function testTasksInDatabaseAreListedByAPI(){
+        $this->withoutMiddleware();
+
         $this->createFakeTasks();
         $this->get('/task')
             ->seeJsonStructure([
@@ -37,6 +42,8 @@ class TasksAPITest extends TestCase {
      * @return void
      */
     public function testTasksInDatabaseAreShownByAPI(){
+        $this->withoutMiddleware();
+
         $task = $this->createFakeTask();
         $this->get('/task/' . $task->id)
             ->seeJsonContains(['name' => $task->name, 'done' => $task->done])
@@ -49,6 +56,8 @@ class TasksAPITest extends TestCase {
      * @return void
      */
     public function testTasksCanBePostedAndSavedIntoDatabase() {
+        $this->withoutMiddleware();
+
         $data = ['name' => 'Foobar', 'done' => false];
 
         $this->post('/task',$data)->seeInDatabase('tasks',$data);
@@ -61,6 +70,8 @@ class TasksAPITest extends TestCase {
      * @return void
      */
     public function testTasksCanBeUpdatedAndSeeChangesInDatabase() {
+        $this->withoutMiddleware();
+
         $task = $this->createFakeTask();
 
         $data = ['name' => 'Learn Laravel now!', 'done' => true];
@@ -75,12 +86,26 @@ class TasksAPITest extends TestCase {
      * @return void
      */
     public function testTasksCanBeDeletedAndNotSeenOnDatabase(){
+        $this->withoutMiddleware();
+
         $task = $this->createFakeTask();
 
         $data = ['name' => $task->name, 'done' => $task->done];
 
         $this->delete('/task/' . $task->id)->notSeeInDatabase('tasks',$data);
         $this->get('/task')->dontSeeJson($data)->seeStatusCode(200);
+    }
+
+    /**
+     * Test tasks when not auth redirect to auth/login and see message
+     *
+     * @return void
+     */
+    public function testTaskReturnLoginPageWhenNotAuth(){
+
+        $this->visit('/task')
+            ->seePageIs('/auth/login')
+            ->see('No tens acces a la API');
     }
 
     /**
