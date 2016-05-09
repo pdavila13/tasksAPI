@@ -13,9 +13,10 @@ class TasksAPITest extends TestCase {
      * @return void
      */
     public function testTasksUseJson(){
-        $this->withoutMiddleware();
+        $user = $this->createUser();
 
-        $this->get('/task')->seeJson()->seeStatusCode(200);
+        $this->get('/task?api_token=' . $user
+                ->api_token)->seeJson()->seeStatusCode(200);
     }
 
     /**
@@ -24,10 +25,11 @@ class TasksAPITest extends TestCase {
      * @return void
      */
     public function testTasksInDatabaseAreListedByAPI(){
-        $this->withoutMiddleware();
+        $user = $this->createUser();
 
         $this->createFakeTasks();
-        $this->get('/task')
+        $this->actingAs($user)
+            ->get('/task')
             ->seeJsonStructure([
                 '*' => [
                     'name',
@@ -42,10 +44,10 @@ class TasksAPITest extends TestCase {
      * @return void
      */
     public function testTasksInDatabaseAreShownByAPI(){
-        $this->withoutMiddleware();
+        $user = $this->createUser();
 
         $task = $this->createFakeTask();
-        $this->get('/task/' . $task->id)
+        $this->actingAs($user)->get('/task/' . $task->id)
             ->seeJsonContains(['name' => $task->name, 'done' => $task->done])
             ->seeStatusCode(200);
     }
@@ -56,12 +58,12 @@ class TasksAPITest extends TestCase {
      * @return void
      */
     public function testTasksCanBePostedAndSavedIntoDatabase() {
-        $this->withoutMiddleware();
+        $user = $this->createUser();
 
         $data = ['name' => 'Foobar', 'done' => false];
 
-        $this->post('/task',$data)->seeInDatabase('tasks',$data);
-        $this->get('/task')->seeJsonContains($data)->seeStatusCode(200);
+        $this->actingAs($user)->post('/task',$data)->seeInDatabase('tasks',$data);
+        $this->actingAs($user)->get('/task')->seeJsonContains($data)->seeStatusCode(200);
     }
 
     /**
@@ -70,14 +72,14 @@ class TasksAPITest extends TestCase {
      * @return void
      */
     public function testTasksCanBeUpdatedAndSeeChangesInDatabase() {
-        $this->withoutMiddleware();
+        $user = $this->createUser();
 
         $task = $this->createFakeTask();
 
         $data = ['name' => 'Learn Laravel now!', 'done' => true];
 
-        $this->put('/task/' . $task->id, $data)->seeInDatabase('tasks',$data);
-        $this->get('/task')->seeJsonContains($data)->seeStatusCode(200);
+        $this->actingAs($user)->put('/task/' . $task->id, $data)->seeInDatabase('tasks',$data);
+        $this->actingAs($user)->get('/task')->seeJsonContains($data)->seeStatusCode(200);
     }
 
     /**
@@ -86,14 +88,14 @@ class TasksAPITest extends TestCase {
      * @return void
      */
     public function testTasksCanBeDeletedAndNotSeenOnDatabase(){
-        $this->withoutMiddleware();
+        $user = $this->createUser();
 
         $task = $this->createFakeTask();
 
         $data = ['name' => $task->name, 'done' => $task->done];
 
-        $this->delete('/task/' . $task->id)->notSeeInDatabase('tasks',$data);
-        $this->get('/task')->dontSeeJson($data)->seeStatusCode(200);
+        $this->actingAs($user)->delete('/task/' . $task->id)->notSeeInDatabase('tasks',$data);
+        $this->actingAs($user)->get('/task')->dontSeeJson($data)->seeStatusCode(200);
     }
 
     /**
@@ -102,7 +104,6 @@ class TasksAPITest extends TestCase {
      * @return void
      */
     public function testTaskReturnLoginPageWhenNotAuth(){
-
         $this->visit('/task')
             ->seePageIs('/auth/login')
             ->see('No tens acces a la API');
@@ -135,5 +136,15 @@ class TasksAPITest extends TestCase {
         foreach (range(0,$count) as $number) {
             $this->createFakeTask();
         }
+    }
+
+    /**
+     * Create user tasks
+     *
+     * @return mixed
+     */
+    public function createUser() {
+        $user = factory(App\User::class)->create();
+        return $user;
     }
 }
